@@ -1,0 +1,17 @@
+# Rules
+A => B
+B + C => D
+C | !D => E
+E + F => G
+!A => H
+V ^ W => X
+A + C => Y + Z
+H | I => J
+A + B <=> K
+C + D <=> !L
+
+# Initial facts
+=ACV
+
+# Queries
+?DGHX
