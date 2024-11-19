@@ -53,7 +53,7 @@ from src.Utils import *
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        file_path = "./input/debug.txt"
+        file_path = "./input/very_simple.txt"
         print(f"Without filepath using the default path = {file_path}")
         print("Usage: python script.py <file_path>")
     # else:
