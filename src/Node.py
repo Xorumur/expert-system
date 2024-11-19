@@ -1,11 +1,3 @@
-from enum import Enum
-
-class connector_type(Enum):
-    OR = '|' 
-    XOR = '^'
-    AND = '&'
-    IMPLY = '<='     
-
 class Node:
     def __init__(self, value):
         self.value = value
@@ -50,30 +42,6 @@ class NodeFactory:
             NodeFactory._instances[value] = Node(value)
         return NodeFactory._instances[value]
     
-
-# Construire un réseau connecté
-def build_logical_network(rpn_rules):
-    for rpn in rpn_rules:
-        stack = []
-        for token in rpn.split():
-            if token.isalnum():  # Fait (A, B, ...)
-                stack.append(NodeFactory.get_or_create_node(token))
-            else:  # Opérateur
-                node = NodeFactory.get_or_create_node(token)
-                if token != '!':  # Binaire
-                    right = stack.pop()
-                    left = stack.pop()
-                    node.add_child(left)
-                    node.add_child(right)
-                else:  # Unaise
-                    child = stack.pop()
-                    node.add_child(child)
-                stack.append(node)
-        # Relier les conclusions (dernier élément de la pile)
-        conclusion = stack.pop()
-        NodeFactory.get_or_create_node("ROOT").add_child(conclusion)
-
-
 def build_global_tree(rpn_rules):
     """
     Construit un arbre global en connectant tous les sous-arbres à une racine "ROOT".
@@ -100,32 +68,6 @@ def build_trees_from_rpn(rpn_rules):
         return stack[0]
 
     return [build_tree_from_single_rule(rule) for rule in rpn_rules]
-
-
-def print_tree(node, level=0):
-    """
-    Affiche l'arbre en commençant par le nœud donné, avec une indentation
-    pour représenter les niveaux hiérarchiques.
-    :param node: Le nœud actuel à afficher.
-    :param level: Le niveau d'indentation actuel.
-    """
-    if not node:
-        return
-
-    # Afficher le nœud actuel avec son niveau d'indentation
-    print("  " * level + f"- {node}")
-
-    # Afficher le sous-arbre gauche (si existant)
-    if node.left:
-        print_tree(node.left, level + 1)
-
-    # Afficher le sous-arbre droit (si existant)
-    if node.right:
-        print_tree(node.right, level + 1)
-
-    # Afficher les enfants multiples (si c'est un opérateur avec plusieurs relations)
-    for child in node.children:
-        print_tree(child, level + 1)
 
 def resolve(node, facts):
     """
@@ -181,32 +123,3 @@ def resolve(node, facts):
     # Par défaut, la valeur reste indéterminée
     node.resolved_value = None
     return None
-
-
-
-
-
-def get_facts_with_values(node, facts, resolved_facts=None):
-    """
-    Parcourt l'arbre pour collecter les faits et leurs valeurs.
-    :param node: Le nœud actuel à parcourir.
-    :param facts: Dictionnaire des faits connus.
-    :param resolved_facts: Dictionnaire où les faits résolus seront ajoutés.
-    :return: Un dictionnaire {nom_du_fait: valeur}.
-    """
-    if resolved_facts is None:
-        resolved_facts = {}
-
-    # Si c'est une feuille (un fait), récupère sa valeur
-    if node.value.isalnum():
-        resolved_facts[node.value] = facts.get(node.value, False)
-
-    # Parcourir les enfants gauche, droit ou multiples
-    if node.left:
-        get_facts_with_values(node.left, facts, resolved_facts)
-    if node.right:
-        get_facts_with_values(node.right, facts, resolved_facts)
-    for child in node.children:
-        get_facts_with_values(child, facts, resolved_facts)
-
-    return resolved_facts

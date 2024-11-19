@@ -1,0 +1,12 @@
+# Rules
+A + (B | !C) => D
+D + E <=> F
+!F | (G ^ H) => I
+I + (J => K) => L
+K + !A => M
+
+# Initial facts
+=ABG
+
+# Queries
+?DFILM

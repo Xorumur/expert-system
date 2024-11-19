@@ -30,6 +30,133 @@ class Parser:
             elif line.startswith("?"):
                 self.queries.update(line[1:])
 
+    # def to_rpn(self, rule):
+    #     """
+    #     Convertit une règle en notation polonaise inversée (RPN).
+    #     """
+    #     precedence = {
+    #         '!': 5,   # Non logique
+    #         '+': 4,   # ET logique
+    #         '|': 3,   # OU logique
+    #         '^': 2,   # XOR logique
+    #         '=>': 1,  # Implication
+    #         '<=>': 0, # Biconditionnelle
+    #         '(': 0,   # Parenthèses ont la plus basse priorité
+    #     }
+    #     output = []
+    #     operators = []
+
+    #     # Séparer la règle en tokens (opérateurs, variables, etc.)
+    #     tokens = self.tokenize_rule(rule)
+
+    #     for token in tokens:
+    #         if token.isalnum():  # Variable ou symbole logique (A, B, etc.)
+    #             output.append(token)
+    #         elif token == '(':
+    #             operators.append(token)
+    #         elif token == ')':
+    #             while operators and operators[-1] != '(':
+    #                 output.append(operators.pop())
+    #             operators.pop()  # Retirer '('
+    #         else:  # Opérateur logique
+    #             while (operators and precedence[operators[-1]] >= precedence[token]):
+    #                 output.append(operators.pop())
+    #             operators.append(token)
+
+    #     while operators:
+    #         output.append(operators.pop())
+
+    #     return ' '.join(output)
+    # def to_rpn(self, rule):
+    #     """
+    #     Convertit une règle en notation polonaise inversée (RPN).
+    #     """
+    #     precedence = {
+    #         '!': 5,   # Non logique
+    #         '+': 4,   # ET logique
+    #         '|': 3,   # OU logique
+    #         '^': 2,   # XOR logique
+    #         '=>': 1,  # Implication
+    #         '<=>': 0, # Biconditionnelle
+    #         '(': 0,   # Parenthèses ont la plus basse priorité
+    #     }
+    #     output = []
+    #     operators = []
+
+    #     # Séparer la règle en tokens (opérateurs, variables, etc.)
+    #     tokens = self.tokenize_rule(rule)
+
+    #     for token in tokens:
+    #         if token.isalnum():  # Variable ou symbole logique (A, B, etc.)
+    #             output.append(token)
+    #         elif token == '(':
+    #             operators.append(token)
+    #         elif token == ')':
+    #             # Dépiler jusqu'à trouver '(' ou une pile vide
+    #             while operators and operators[-1] != '(':
+    #                 output.append(operators.pop())
+    #             if operators:  # Vérifier si '(' est présent
+    #                 operators.pop()  # Retirer '('
+    #             else:
+    #                 raise ValueError(f"Unmatched closing parenthesis in rule: {rule}")
+    #         else:  # Opérateur logique
+    #             while (operators and precedence[operators[-1]] >= precedence[token]):
+    #                 output.append(operators.pop())
+    #             operators.append(token)
+
+    #     # Dépiler les opérateurs restants
+    #     while operators:
+    #         if operators[-1] == '(':
+    #             raise ValueError(f"Unmatched opening parenthesis in rule: {rule}")
+    #         output.append(operators.pop())
+
+    #     return ' '.join
+    # def to_rpn(self, rule):
+    #     """
+    #     Convertit une règle en notation polonaise inversée (RPN).
+    #     """
+    #     precedence = {
+    #         '!': 5,   # Non logique
+    #         '+': 4,   # ET logique
+    #         '|': 3,   # OU logique
+    #         '^': 2,   # XOR logique
+    #         '=>': 1,  # Implication
+    #         '<=>': 0, # Biconditionnelle
+    #         '(': 0,   # Parenthèses ont la plus basse priorité
+    #     }
+    #     output = []
+    #     operators = []
+
+    #     # Séparer la règle en tokens (opérateurs, variables, etc.)
+    #     tokens = self.tokenize_rule(rule)
+
+    #     for token in tokens:
+    #         if token.isalnum():  # Variable ou symbole logique (A, B, etc.)
+    #             output.append(token)
+    #         elif token == '(':
+    #             operators.append(token)
+    #         elif token == ')':
+    #             # Dépiler jusqu'à trouver '(' ou une pile vide
+    #             while operators and operators[-1] != '(':
+    #                 output.append(operators.pop())
+    #             if operators:  # Vérifier si '(' est présent
+    #                 operators.pop()  # Retirer '('
+    #             else:
+    #                 raise ValueError(f"Unmatched closing parenthesis in rule: {rule}")
+    #         else:  # Opérateur logique
+    #             while (operators and precedence[operators[-1]] >= precedence[token]):
+    #                 output.append(operators.pop())
+    #             operators.append(token)
+
+    #     # Dépiler les opérateurs restants
+    #     while operators:
+    #         if operators[-1] == '(':
+    #             raise ValueError(f"Unmatched opening parenthesis in rule: {rule}")
+    #         output.append(operators.pop())
+
+    #     print(f"RPN for '{rule}': {' '.join(output)}")  # Debugging log
+    #     return ' '.join(output)
+    
     def to_rpn(self, rule):
         """
         Convertit une règle en notation polonaise inversée (RPN).
@@ -41,7 +168,7 @@ class Parser:
             '^': 2,   # XOR logique
             '=>': 1,  # Implication
             '<=>': 0, # Biconditionnelle
-            '(': 0,   # Parenthèses ont la plus basse priorité
+            '(': -1,  # Parenthèses ont la plus basse priorité (pour ne pas être dépilées prématurément)
         }
         output = []
         operators = []
@@ -55,18 +182,30 @@ class Parser:
             elif token == '(':
                 operators.append(token)
             elif token == ')':
+                # Dépiler jusqu'à trouver '(' ou une pile vide
                 while operators and operators[-1] != '(':
                     output.append(operators.pop())
-                operators.pop()  # Retirer '('
+                if operators:  # Vérifier si '(' est présent
+                    operators.pop()  # Retirer '('
+                else:
+                    raise ValueError(f"Unmatched closing parenthesis in rule: {rule}")
             else:  # Opérateur logique
+                # Dépiler les opérateurs avec une priorité >= au token actuel
                 while (operators and precedence[operators[-1]] >= precedence[token]):
                     output.append(operators.pop())
                 operators.append(token)
 
+        # Dépiler les opérateurs restants
         while operators:
+            if operators[-1] == '(':
+                raise ValueError(f"Unmatched opening parenthesis in rule: {rule}")
             output.append(operators.pop())
 
+        print(f"RPN for '{rule}': {' '.join(output)}")  # Debugging log
         return ' '.join(output)
+
+
+
 
     def tokenize_rule(self, rule):
         """
