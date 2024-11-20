@@ -132,7 +132,8 @@ class Parser:
 
     def validate_input(self, lines):
         # Define the regular expressions for each type of line
-        rule_pattern = r'^[A-Z \+\-\|\^\!\(\)]+(=>|<=>)[A-Z \+\-\|\^\!\(\)]+$'
+        # This rule pattern allows operators (+, -, |, ^) to be followed by variables or ! before variables
+        rule_pattern = r'^\s*\(?\s*!?[A-Z](?:\s*[\+\|\^]\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?\s*(?:=>|<=>)\s*\(?\s*!?[A-Z](?:\s*[\+\|\^]\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?\s*$'
         fact_pattern = r'^=[A-Z]*$'
         query_pattern = r'^\?[A-Z]+$'
 
