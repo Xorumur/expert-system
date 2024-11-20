@@ -1,7 +1,9 @@
 from .Node import *
+import re
 
 class Parser:
     def __init__(self):
+        self.file_content = []
         self.rules = []         # Règles au format original
         self.rules_rpn = []     # Règles converties en RPN
         self.facts = set()      # Faits initiaux
@@ -13,7 +15,8 @@ class Parser:
         """
         with open(file_path, 'r') as f:
             lines = f.readlines()
-        
+        self.file_content = lines
+
         for line in lines:
             line = line.strip()
             if not line or line.startswith("#"):
@@ -120,3 +123,76 @@ class Parser:
                 f"Rules in RPN: {self.rules_rpn}\n"
                 f"Facts: {sorted(self.facts)}\n"
                 f"Queries: {sorted(self.queries)}\n")
+
+
+    def check_error(self):
+        if not self.validate_input(self.file_content):
+            raise AssertionError()
+
+
+    def validate_input(self, lines):
+        # Define the regular expressions for each type of line
+        rule_pattern = r'^[A-Z \+\-\|\^\!\(\)]+(=>|<=>)[A-Z \+\-\|\^\!\(\)]+$'
+        fact_pattern = r'^=[A-Z]*$'
+        query_pattern = r'^\?[A-Z]+$'
+
+        # Track parentheses balance
+        def check_parentheses(line):
+            count = 0
+            for char in line:
+                if char == '(':
+                    count += 1
+                elif char == ')':
+                    count -= 1
+                    if count < 0:
+                        return False
+            return count == 0
+
+        # Split the file content into lines and process
+        rules = []
+        facts = []
+        queries = []
+
+        for line_number, line in enumerate(lines, start=1):
+            # Skip empty lines or comments
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            # Check if the line matches a rule, fact, or query
+            if re.match(rule_pattern, line):
+                if facts or queries:
+                    print(f"Invalid format: rules must appear before facts and queries. Error on line {line_number}: {line}")
+                    return False
+                rules.append(line)
+            elif re.match(fact_pattern, line):
+                if queries or facts:
+                    print(f"Invalid format: only one facts line is allowed. Error on line {line_number}: {line}")
+                    return False
+                facts.append(line)
+            elif re.match(query_pattern, line):
+                if len(facts) != 1:
+                    print(f"Invalid format: a single facts line must precede the query. Error on line {line_number}: {line}")
+                    return False
+                queries.append(line)
+            else:
+                print(f"Invalid syntax on line {line_number}: {line}")
+                return False
+
+            # Check parentheses balance
+            if not check_parentheses(line):
+                print(f"Unmatched parentheses on line {line_number}: {line}")
+                return False
+
+        # Validate the structure of the file
+        if not rules:
+            print("Invalid format: at least one rule is required.")
+            return False
+        if len(facts) != 1:
+            print("Invalid format: exactly one facts line is required.")
+            return False
+        if len(queries) != 1:
+            print("Invalid format: exactly one query line is required.")
+            return False
+
+        return True
