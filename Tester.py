@@ -66,9 +66,16 @@ tests = [
     },
     {
         "input_file": "./input/bad_input/operators.txt",
-        "expected_output": """error: Unmatched closing parenthesis in rule: A + B) <=> !C"""
+        "expected_output": """Invalid syntax on line 9: A ++ B <=> C\nerror:"""
     },
-
+    {
+        "input_file": "./input/bad_input/invalid_parameters.txt",
+        "expected_output": """Invalid syntax on line 11: =7\nerror:"""
+    },
+    {
+        "input_file": "./input/bad_input/invalid_parameters_2.txt",
+        "expected_output": """Requested Facts (sorted alphabetically):\nP: Not found in facts\n"""
+    },
 ]
 
 # Chemin vers votre script principal
