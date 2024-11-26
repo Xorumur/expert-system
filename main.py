@@ -62,21 +62,30 @@ if __name__ == "__main__":
             file_path = sys.argv[1]
         parser = Parser()
         parser.parse_file(file_path)
-        print(parser)
+        # print(parser)
 
         parser.check_error()
 
         # Construire l'arbre global
         global_tree = build_global_tree(parser.rules_rpn)
 
+
         # Résolution des règles
-        facts = {fact: (fact in parser.facts) for fact, node in NodeFactory._instances.items() if fact.isalnum()}
+        # facts = {fact: (fact in parser.facts) for fact, node in NodeFactory._instances.items() if fact.isalnum()}
+        facts = {fact: True if fact in parser.facts else None for fact, node in NodeFactory._instances.items() if fact.isalnum()}
+        # print_facts_alphabetically(facts)
         for subtree in global_tree.children:
             resolve(subtree, facts)
 
         # Afficher les nœuds par ordre alphabétique
-        print_facts_alphabetically(facts)
+        # print_facts_alphabetically(facts)
+        for node in NodeFactory._instances.values():
+            if node.resolved_value is None:
+                node.resolved_value = False
         
+        
+        # Mettre à jour facts avec les nouvelles valeurs des Nodes
+        facts = {node.value: node.resolved_value for node in NodeFactory._instances.values() if node.value.isalnum()}
         
         print_requested_facts(facts, parser.queries)
     except Exception as e:

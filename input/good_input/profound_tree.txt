@@ -1,0 +1,10 @@
+# Rules
+A => B
+B => C
+C => D
+
+# Initial facts
+=A
+
+# Queries
+?D

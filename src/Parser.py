@@ -77,7 +77,7 @@ class Parser:
                 raise ValueError(f"Unmatched opening parenthesis in rule: {rule}")
             output.append(operators.pop())
 
-        print(f"RPN for '{rule}': {' '.join(output)}")  # Debugging log
+        # print(f"RPN for '{rule}': {' '.join(output)}")  # Debugging log
         return ' '.join(output)
 
 
