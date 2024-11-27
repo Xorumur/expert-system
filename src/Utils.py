@@ -5,14 +5,14 @@ def print_nodes_alphabetically(root):
     """
     # Collecter tous les nœuds
     nodes = collect_nodes(root)
-    
+
     # Trier les nœuds par leur valeur (ordre alphabétique)
     sorted_nodes = sorted(nodes, key=lambda node: node.value)
-    
+
     print("\nNodes sorted alphabetically:")
     for node in sorted_nodes:
         print(f"{node.value}: resolved_value={node.resolved_value}")
-        
+
 
 def collect_nodes(node, nodes=None):
     """
@@ -40,7 +40,6 @@ def collect_nodes(node, nodes=None):
     return nodes
 
 
-
 def print_tree(node, level=0):
     """
     Affiche l'arbre en commençant par le nœud donné, avec une indentation
@@ -62,10 +61,10 @@ def print_tree(node, level=0):
     if node.right:
         print_tree(node.right, level + 1)
 
-    # Afficher les enfants multiples (si c'est un opérateur avec plusieurs relations)
+    # Afficher les enfants multiples
+    # (si c'est un opérateur avec plusieurs relations)
     for child in node.children:
         print_tree(child, level + 1)
-
 
 
 def get_facts_with_values(node, facts, resolved_facts=None):
@@ -93,19 +92,22 @@ def get_facts_with_values(node, facts, resolved_facts=None):
 
     return resolved_facts
 
+
 def print_facts_alphabetically(facts):
-            """
-            Affiche les faits depuis le dictionnaire `facts` par ordre alphabétique.
-            :param facts: Dictionnaire contenant les faits {nom: valeur}.
-            """
-            print("\nFacts sorted alphabetically:")
-            for fact in sorted(facts.keys()):  # Trier les clés du dictionnaire
-                print(f"{fact}: {facts[fact]}")
+    """
+    Affiche les faits depuis le dictionnaire `facts`
+    par ordre alphabétique.
+    :param facts: Dictionnaire contenant les faits {nom: valeur}.
+    """
+    print("\nFacts sorted alphabetically:")
+    for fact in sorted(facts.keys()):  # Trier les clés du dictionnaire
+        print(f"{fact}: {facts[fact]}")
+
 
 def print_requested_facts(facts, queries):
     """
-    Affiche les faits demandés dans le fichier d'entrée (listés dans `queries`),
-    par ordre alphabétique.
+    Affiche les faits demandés dans le fichier d'entrée
+    (listés dans `queries`), par ordre alphabétique.
     :param facts: Dictionnaire contenant les faits {nom: valeur}.
     :param queries: Ensemble ou liste contenant les faits demandés.
     """

@@ -1,0 +1,10 @@
+# Rules
+A => !B
+!A => C
+!C => !D
+
+# Initial facts
+=A
+
+# Queries
+?BCD

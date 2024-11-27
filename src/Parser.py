@@ -1,5 +1,6 @@
-from .Node import *
+from .Node import NodeFactory
 import re
+
 
 class Parser:
     def __init__(self):
@@ -21,7 +22,7 @@ class Parser:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue  # Ignorer les lignes vides ou les commentaires
-            
+
             if "=>" in line or "<=>" in line:
                 self.rules.append(line)
                 self.rules_rpn.append(self.to_rpn(line))
@@ -29,7 +30,8 @@ class Parser:
                 self.facts.update(line[1:])
                 for fact in line[1:]:
                     node = NodeFactory.get_or_create_node(fact)
-                    node.resolved_value = True  # Définit les faits initiaux à True
+                    # Définit les faits initiaux à True
+                    node.resolved_value = True
             elif line.startswith("?"):
                 self.queries.update(line[1:])
 
@@ -43,11 +45,11 @@ class Parser:
             '|': 3,   # OU logique
             '^': 2,   # XOR logique
             '=>': 1,  # Implication
-            '<=>': 0, # Biconditionnelle
-            '(': -1,  # Parenthèses ont la plus basse priorité (pour ne pas être dépilées prématurément)
+            '<=>': 0,  # Biconditionnelle
+            '(': -1,  # Parenthèses ont la plus basse priorité
         }
         output = []
-        operators = []
+        ops = []
 
         # Séparer la règle en tokens (opérateurs, variables, etc.)
         tokens = self.tokenize_rule(rule)
@@ -56,61 +58,61 @@ class Parser:
             if token.isalnum():  # Variable ou symbole logique (A, B, etc.)
                 output.append(token)
             elif token == '(':
-                operators.append(token)
+                ops.append(token)
             elif token == ')':
                 # Dépiler jusqu'à trouver '(' ou une pile vide
-                while operators and operators[-1] != '(':
-                    output.append(operators.pop())
-                if operators:  # Vérifier si '(' est présent
-                    operators.pop()  # Retirer '('
+                while ops and ops[-1] != '(':
+                    output.append(ops.pop())
+                if ops:  # Vérifier si '(' est présent
+                    ops.pop()  # Retirer '('
                 else:
-                    raise ValueError(f"Unmatched closing parenthesis in rule: {rule}")
+                    raise ValueError("Unmatched closing parenthesis " +
+                                     f"in rule: {rule}")
             else:  # Opérateur logique
                 # Dépiler les opérateurs avec une priorité >= au token actuel
-                while (operators and precedence[operators[-1]] >= precedence[token]):
-                    output.append(operators.pop())
-                operators.append(token)
+                while (ops and precedence[ops[-1]] >= precedence[token]):
+                    output.append(ops.pop())
+                ops.append(token)
 
         # Dépiler les opérateurs restants
-        while operators:
-            if operators[-1] == '(':
-                raise ValueError(f"Unmatched opening parenthesis in rule: {rule}")
-            output.append(operators.pop())
+        while ops:
+            if ops[-1] == '(':
+                raise ValueError("Unmatched opening parenthesis " +
+                                 f"in rule: {rule}")
+            output.append(ops.pop())
 
         # print(f"RPN for '{rule}': {' '.join(output)}")  # Debugging log
         return ' '.join(output)
 
-
-
-
     def tokenize_rule(self, rule):
         """
-        Tokenize une règle pour extraire les opérateurs, parenthèses et variables.
+        Tokenize une règle pour extraire les opérateurs,
+        parenthèses et variables.
         """
         tokens = []
         buffer = ''
         i = 0
         while i < len(rule):
-            char = rule[i]
-            if char in "()+|^!":  # Opérateurs et parenthèses simples
+            c = rule[i]
+            if c in "()+|^!":  # Opérateurs et parenthèses simples
                 if buffer:
                     tokens.append(buffer)
                     buffer = ''
-                tokens.append(char)
-            elif char == '=' and i + 1 < len(rule) and rule[i + 1] == '>':
+                tokens.append(c)
+            elif c == '=' and i + 1 < len(rule) and rule[i + 1] == '>':
                 if buffer:
                     tokens.append(buffer)
                     buffer = ''
                 tokens.append('=>')
                 i += 1
-            elif char == '<' and i + 2 < len(rule) and rule[i + 1:i + 3] == '=>':
+            elif c == '<' and i + 2 < len(rule) and rule[i + 1:i + 3] == '=>':
                 if buffer:
                     tokens.append(buffer)
                     buffer = ''
                 tokens.append('<=>')
                 i += 2
-            elif char.strip():  # Ignorer les espaces
-                buffer += char
+            elif c.strip():  # Ignorer les espaces
+                buffer += c
             i += 1
 
         if buffer:
@@ -124,16 +126,18 @@ class Parser:
                 f"Facts: {sorted(self.facts)}\n"
                 f"Queries: {sorted(self.queries)}\n")
 
-
     def check_error(self):
         if not self.validate_input(self.file_content):
             raise AssertionError()
 
-
     def validate_input(self, lines):
         # Define the regular expressions for each type of line
-        # This rule pattern allows operators (+, -, |, ^) to be followed by variables or ! before variables
-        rule_pattern = r'^\s*\(?\s*!?[A-Z](?:\s*[\+\|\^]\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?\s*(?:=>|<=>)\s*\(?\s*!?[A-Z](?:\s*[\+\|\^]\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?\s*$'
+        # This rule pattern allows operators (+, -, |, ^)
+        # to be followed by variables or ! before variables
+        rule_pattern = (r'^\s*\(?\s*!?[A-Z]'
+                        r'(?:\s*[\+\|\^]\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?'
+                        r'\s*(?:=>|<=>)\s*\(?\s*!?[A-Z](?:\s*[\+\|\^]'
+                        r'\s*\(?\s*!?[A-Z]\s*\)?)*\s*\)?\s*$')
         fact_pattern = r'^=[A-Z]*$'
         query_pattern = r'^\?[A-Z]+$'
 
@@ -163,17 +167,23 @@ class Parser:
             # Check if the line matches a rule, fact, or query
             if re.match(rule_pattern, line):
                 if facts or queries:
-                    print(f"Invalid format: rules must appear before facts and queries. Error on line {line_number}: {line}")
+                    print("Invalid format: " +
+                          "rules must appear before facts and queries. " +
+                          f"Error on line {line_number}: {line}")
                     return False
                 rules.append(line)
             elif re.match(fact_pattern, line):
                 if queries or facts:
-                    print(f"Invalid format: only one facts line is allowed. Error on line {line_number}: {line}")
+                    print("Invalid format: " +
+                          "only one facts line is allowed. " +
+                          f"Error on line {line_number}: {line}")
                     return False
                 facts.append(line)
             elif re.match(query_pattern, line):
                 if len(facts) != 1:
-                    print(f"Invalid format: a single facts line must precede the query. Error on line {line_number}: {line}")
+                    print("Invalid format: " +
+                          "a single facts line must precede the query." +
+                          f" Error on line {line_number}: {line}")
                     return False
                 queries.append(line)
             else:
