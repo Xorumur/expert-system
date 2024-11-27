@@ -84,6 +84,10 @@ tests = [
         "input_file": "./input/good_input/reverse_profound_tree.txt",
         "expected_output": """Requested Facts (sorted alphabetically):\nD: True"""
     },
+    {
+        "input_file": "./input/good_input/negations.txt",
+        "expected_output": """Requested Facts (sorted alphabetically):\nB: False\nC: False\nD: False"""
+    },
 ]
 
 # Chemin vers votre script principal
