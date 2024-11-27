@@ -76,6 +76,14 @@ tests = [
         "input_file": "./input/bad_input/invalid_parameters_2.txt",
         "expected_output": """Requested Facts (sorted alphabetically):\nP: Not found in facts\n"""
     },
+    {
+        "input_file": "./input/bad_input/bad_input.txt",
+        "expected_output": """Invalid syntax on line 1: tdsa\nerror:"""
+    },
+    {
+        "input_file": "./input/good_input/reverse_profound_tree.txt",
+        "expected_output": """Requested Facts (sorted alphabetically):\nD: True"""
+    },
 ]
 
 # Chemin vers votre script principal
