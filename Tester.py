@@ -115,6 +115,18 @@ if __name__ == "__main__":
                 """Requested Facts (sorted alphabetically):""" +
                 """\nB: False\nC: False\nD: False"""
             },
+            {
+                "input_file": "./input/good_input/ifonlyif_before.txt",
+                "expected_output":
+                """Requested Facts (sorted alphabetically):""" +
+                """\nA: False\nB: True\nC: True\nD: True"""
+            },
+            {
+                "input_file": "./input/good_input/ifonlyif_after.txt",
+                "expected_output":
+                """Requested Facts (sorted alphabetically):""" +
+                """\nA: False\nB: True\nC: True\nD: True"""
+            },
         ]
 
         # Chemin vers votre script principal

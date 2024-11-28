@@ -1,13 +1,14 @@
 import sys
 from src.Parser import Parser
-from src.Utils import print_requested_facts
+from src.Utils import print_requested_facts, print_tree
 from src.Node import build_global_tree, resolve, NodeFactory
 
 
 if __name__ == "__main__":
     try:
         if len(sys.argv) < 2:
-            file_path = "./input/good_input/reverse_profound_tree.txt"
+            file_path = "./test.txt"
+            #file_path = "./input/good_input/reverse_profound_tree.txt"
             print(f"Without filepath using the default path = {file_path}")
             print("Usage: python script.py <file_path>")
         # else:
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         iteration = 0
         while True:
             iteration += 1
-            # print(f"\nIteration: {iteration}")
+            #print(f"\nIteration: {iteration}")
 
             # Sauvegarder l'état des facts avant résolution
             pre = facts.copy()
@@ -49,7 +50,7 @@ if __name__ == "__main__":
             for subtree in global_tree.children:
                 resolve(subtree, facts)
 
-            # print_tree(global_tree)
+            #print_tree(global_tree)
 
             # Mettre à jour facts avec les nouvelles valeurs des Nodes
             facts = {node.value: node.resolved_value for node
@@ -58,12 +59,12 @@ if __name__ == "__main__":
 
             # Vérification des changements dans les facts et les nœuds
             if not facts_have_changed(pre, facts) and not nodes_have_changed():
-                # print("\nNo changes in facts or nodes, stopping resolution.")
+                #print("\nNo changes in facts or nodes, stopping resolution.")
                 break
 
             # Arrêt si on atteint le maximum d'itérations
             if iteration >= max_iterations:
-                # print("\nMaximum iterations reached, stopping resolution.")
+                #print("\nMaximum iterations reached, stopping resolution.")
                 break
 
         # Affecter les valeurs False aux nœuds non résolus

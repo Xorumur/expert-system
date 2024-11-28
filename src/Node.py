@@ -146,7 +146,9 @@ def resolve(node, facts):
         elif right is False and left is None:
             node.left.resolved_value = False
             facts[node.left.value] = False
-
+        elif right is None and left is None:
+            node.resolved_value = None
+            return None
         # Calculer l'équivalence logique
         node.resolved_value = left == right
         return node.resolved_value
