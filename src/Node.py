@@ -116,8 +116,8 @@ def resolve(node, facts):
         left = resolve(node.left, facts)
         right = resolve(node.right, facts)
         if left:  # Si le côté gauche est vrai, le côté droit doit être vrai
-            node.resolved_value = True
             # Mettre à jour la valeur de la droite
+            node.resolved_value = True
             node.right.resolved_value = True
             facts[node.right.value] = True  # Mettre à jour les faits
         # Si la régle n'est pas encore résolvable
